@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Titan Fitness - 专业数字化私教</title>
+    <style>
+        :root {
+            --accent-gradient: linear-gradient(135deg, #4285f4, #9b72cb);
+            --accent-color: #9b72cb;
+            --bg-main: #f8fafd;
+            --sidebar-bg: #f0f4f9;
+            --text-primary: #1f1f1f;
+            --text-secondary: #444746;
+            --border-color: #dee1e5;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
+            background-color: var(--bg-main);
+            color: var(--text-primary);
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            overflow: hidden; /* Prevent body scroll */
+        }
+
+        .app-container {
+            width: 100%;
+            max-width: 1600px;
+            display: grid;
+            grid-template-columns: 350px 1fr;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* 侧边栏 */
+        .sidebar {
+            background-color: var(--sidebar-bg);
+            padding: 30px;
+            display: flex;
+            flex-direction: column;
+            border-right: 1px solid var(--border-color);
+            height: 100vh;
+        }
+
+        .brand-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 1.6em;
+            font-weight: 700;
+            margin-bottom: 40px;
+            color: var(--text-primary);
+        }
+
+        .brand-header svg {
+            color: #4285f4;
+        }
+
+        .motivation-panel {
+            background: white;
+            padding: 24px;
+            border-radius: 24px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.03);
+            margin-bottom: 30px;
+            border: 1px solid rgba(0,0,0,0.05);
+        }
+
+        .motivation-panel h3 {
+            font-size: 0.85em;
+            color: #888;
+            text-transform: uppercase;
+            margin-bottom: 15px;
+            letter-spacing: 1.5px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .quote-text {
+            font-size: 1.1em;
+            font-weight: 600;
+            line-height: 1.5;
+            color: #1a1a1a;
+            font-style: italic;
+        }
+
+        .quote-author {
+            display: block;
+            margin-top: 12px;
+            font-size: 0.85em;
+            color: var(--accent-color);
+            text-align: right;
+            font-weight: 700;
+        }
+
+        .nav-group h4 {
+            font-size: 0.8em;
+            color: #999;
+            margin: 20px 0 12px 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .nav-item {
+            padding: 14px 18px;
+            border-radius: 16px;
+            cursor: pointer;
+            font-size: 0.95em;
+            color: var(--text-secondary);
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            margin-bottom: 6px;
+        }
+
+        .nav-item:hover {
+            background-color: #e2e7ed;
+            color: var(--text-primary);
+            padding-left: 22px;
+        }
+
+        /* 主视口 */
+        .viewport {
+            display: flex;
+            flex-direction: column;
+            background: white;
+            position: relative;
+            height: 100vh;
+        }
+
+        .top-bar {
+            padding: 24px 60px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #f2f2f2;
+            background: white;
+            z-index: 10;
+        }
+
+        .status-badge {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 16px;
+            background: #f0f7ff;
+            border-radius: 30px;
+            font-size: 0.9em;
+            font-weight: 500;
+            color: #1a73e8;
+        }
+
+        .status-indicator {
+            width: 10px;
+            height: 10px;
+            background: #1a73e8;
+            border-radius: 50%;
+            position: relative;
+        }
+
+        .status-indicator::after {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: inherit;
+            border-radius: inherit;
+            animation: pulse-ring 2s infinite;
+        }
+
+        @keyframes pulse-ring {
+            0% { transform: scale(1); opacity: 0.5; }
+            100% { transform: scale(2.5); opacity: 0; }
+        }
+
+        /* 修复滚动容器 */
+        .chat-container {
+            flex: 1;
+            overflow-y: auto;
+            padding: 50px 18% 200px 18%; /* Bottom padding adjusted for input area */
+            scroll-behavior: smooth;
+        }
+
+        .chat-container::-webkit-scrollbar { width: 8px; }
+        .chat-container::-webkit-scrollbar-track { background: transparent; }
+        .chat-container::-webkit-scrollbar-thumb { background: #dee1e5; border-radius: 4px; }
+        .chat-container::-webkit-scrollbar-thumb:hover { background: #ccc; }
+
+        .entry {
+            margin-bottom: 40px;
+            display: flex;
+            gap: 24px;
+            animation: fadeUp 0.4s ease-out;
+        }
+
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .avatar-box {
+            width: 44px;
+            height: 44px;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            font-size: 1.2em;
+        }
+
+        .ai-entry .avatar-box {
+            background: var(--accent-gradient);
+            color: white;
+            box-shadow: 0 4px 12px rgba(66, 133, 244, 0.3);
+        }
+
+        .user-entry .avatar-box {
+            background: #f1f3f4;
+            color: #5f6368;
+        }
+
+        .content-body {
+            flex: 1;
+            font-size: 1.1em;
+            line-height: 1.7;
+            color: var(--text-primary);
+        }
+
+        .doc-tag-container {
+            margin-top: 18px;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .doc-tag {
+            padding: 6px 14px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            font-size: 0.8em;
+            color: #70757a;
+            border: 1px solid #dadce0;
+        }
+
+        /* 输入控制区 - 浮动且透明度背景以防遮挡最后一条消息 */
+        .controls {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 40px 0;
+            background: linear-gradient(to top, white 60%, transparent);
+            display: flex;
+            justify-content: center;
+            z-index: 5;
+        }
+
+        .input-wrapper {
+            width: 75%;
+            max-width: 900px;
+        }
+
+        .input-box {
+            background: #f0f4f9;
+            border-radius: 28px;
+            padding: 10px 14px 10px 28px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            border: 1px solid transparent;
+            transition: all 0.3s;
+        }
+
+        .input-box:focus-within {
+            background: white;
+            border-color: #dee1e5;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+        }
+
+        input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            outline: none;
+            font-size: 1.15em;
+            padding: 12px 0;
+        }
+
+        .send-circle {
+            width: 52px;
+            height: 52px;
+            border-radius: 50%;
+            border: none;
+            background: white;
+            color: #4285f4;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+        }
+
+        .send-circle:hover {
+            background: #4285f4;
+            color: white;
+            transform: scale(1.05);
+        }
+
+        .send-circle:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* 罗尼弹出效果 */
+        .ronnie-pop {
+            position: fixed;
+            bottom: 140px;
+            right: 50px;
+            background: #000;
+            color: #fff;
+            padding: 18px 28px;
+            border-radius: 24px 24px 4px 24px;
+            font-weight: 900;
+            font-style: italic;
+            z-index: 1000;
+            display: none;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+            border: 2px solid #4285f4;
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- 侧边栏 -->
+        <div class="sidebar">
+            <div class="brand-header">
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8h1a4 4 0 0 1 0 8h-1"></path><path d="M2 8h16v8H2z"></path><line x1="6" y1="12" x2="6" y2="12"></line><line x1="10" y1="12" x2="10" y2="12"></line><line x1="14" y1="12" x2="14" y2="12"></line></svg>
+                <span>Titan Fitness</span>
+            </div>
+
+            <div class="motivation-panel">
+                <h3>🔥 罗尼精神激励</h3>
+                <p class="quote-text">"Everybody wants to be a bodybuilder, but nobody wants to lift no heavy-ass weights."</p>
+                <span class="quote-author">—— Ronnie Coleman (8x Mr. Olympia)</span>
+            </div>
+
+            <div class="nav-group">
+                <h4>快速指令</h4>
+                <div class="nav-item" onclick="quickAsk('罗尼·库尔曼的深蹲训练核心逻辑是什么？')">罗尼深蹲逻辑</div>
+                <div class="nav-item" onclick="quickAsk('帮我制定一个为期4周的爆发力提升计划')">4周爆发力计划</div>
+                <div class="nav-item" onclick="quickAsk('如何在不受伤的前提下突破卧推瓶颈？')">突破卧推瓶颈</div>
+            </div>
+
+            <div style="margin-top: auto; padding: 10px; color: #bbb; font-size: 0.75em; text-align: center;">
+                "Nothing but a peanut!"
+            </div>
+        </div>
+
+        <!-- 主操作区 -->
+        <div class="viewport">
+            <header class="top-bar">
+                <div class="status-badge">
+                    <div class="status-indicator"></div>
+                    <span id="statusLabel">核心知识库已就绪</span>
+                </div>
+                <div style="font-size: 0.85em; color: #aaa; font-weight: 500;" id="latencyInfo">SYSTEM LATENCY: -- MS</div>
+            </header>
+
+            <div class="chat-container" id="chatBox">
+                <div class="entry ai-entry">
+                    <div class="avatar-box">T</div>
+                    <div class="content-body">
+                        欢迎来到 <strong>Titan Fitness</strong> 数字化训练终端。
+                        <br><br>
+                        我已经准备好为你解析复杂的解剖学原理、优化你的营养宏量元素、或者分享罗尼·库尔曼那种“Light weight baby”的硬核心态。
+                        <br><br>
+                        <strong>你想从哪组动作开始聊起？</strong>
+                    </div>
+                </div>
+            </div>
+
+            <div class="controls">
+                <div class="input-wrapper">
+                    <div class="input-box">
+                        <input type="text" id="questionInput" placeholder="输入你的训练咨询或动作疑问..." onkeypress="handleKeyPress(event)">
+                        <button class="send-circle" onclick="askQuestion()" id="askButton">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 激励弹出框 -->
+    <div class="ronnie-pop" id="ronniePop">LIGHT WEIGHT BABY!</div>
+
+    <script>
+        const API_BASE = 'http://localhost:8000';
+
+        // 状态同步
+        async function syncStatus() {
+            try {
+                const res = await fetch(`${API_BASE}/health`);
+                const data = await res.json();
+                const label = document.getElementById('statusLabel');
+                if(data.status === 'healthy') {
+                    label.innerText = "智能私教已在线";
+                    label.parentElement.style.background = "#e6f4ea";
+                    label.parentElement.style.color = "#1e8e3e";
+                }
+            } catch(e) {
+                document.getElementById('statusLabel').innerText = "离线模式 - 检查后端";
+            }
+        }
+
+        // 罗尼激励触发器
+        function triggerMotivation() {
+            const lines = ["YEAH BUDDY!", "LIGHT WEIGHT BABY!", "NOTHING BUT A PEANUT!", "YEAHHHHH!", "EYYYY!"];
+            const pop = document.getElementById('ronniePop');
+            pop.innerText = lines[Math.floor(Math.random() * lines.length)];
+            pop.style.display = 'block';
+            setTimeout(() => { pop.style.display = 'none'; }, 2000);
+        }
+
+        function quickAsk(q) {
+            document.getElementById('questionInput').value = q;
+            askQuestion();
+        }
+
+        async function askQuestion() {
+            const input = document.getElementById('questionInput');
+            const btn = document.getElementById('askButton');
+            const question = input.value.trim();
+            if (!question) return;
+
+            // 1. 界面锁定与用户提问上屏
+            input.disabled = true;
+            btn.disabled = true;
+            appendMsg(question, 'user'); // 用户的问题直接显示
+            input.value = '';
+
+            // 随机触发罗尼激励
+            if(Math.random() > 0.7) triggerMotivation();
+
+            const chatId = localStorage.getItem("titan_fit_id") || crypto.randomUUID();
+            localStorage.setItem("titan_fit_id", chatId);
+
+            // 2. ✨ 创建一个空的 AI 气泡，并拿到它的引用
+            // 我们先传一个空字符串，占个位
+            const aiContentDiv = appendMsg('', 'ai');
+            // 加一个光标闪烁的效果（可选）
+            aiContentDiv.innerHTML = '<span class="cursor">|</span>';
+
+            try {
+                // 3. 请求流式接口 /stream_ask
+                const response = await fetch(`${API_BASE}/stream_ask`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ question: question, chat_id: chatId })
+                });
+
+                if (!response.ok) throw new Error("网络响应异常");
+
+                // 4. 🌟 核心：获取读取器 (Reader)
+                const reader = response.body.getReader();
+                const decoder = new TextDecoder();
+                let buffer = ''; // 缓存池：用来拼凑可能断开的 JSON
+                let isFirstToken = true;
+
+                while (true) {
+                    // 每次 read() 都会拿到一小块二进制数据 (value)
+                    const { done, value } = await reader.read();
+                    if (done) break; // 读完了
+
+                    // 把二进制转成文字
+                    buffer += decoder.decode(value, { stream: true });
+
+                    // 🌟 切香肠逻辑：按换行符 \n 切分数据
+                    const lines = buffer.split('\n');
+
+                    // ⚠️ 注意：最后一行可能是不完整的（比如 {"word": "深... 还没传完），
+                    // 所以我们要把它留到下一次循环再处理。
+                    buffer = lines.pop();
+
+                    for (const line of lines) {
+                        if (!line.trim()) continue; // 跳过空行
+                        try {
+                            const data = JSON.parse(line);
+
+                            // A. 如果是答案文本
+                            if (data.type === 'answer') {
+                                if (isFirstToken) {
+                                    aiContentDiv.innerHTML = ''; // 清除光标，开始显示文字
+                                    isFirstToken = false;
+                                }
+                                // ✨ 往气泡里追加字！
+                                aiContentDiv.innerHTML += data.content;
+
+                                // 保持滚动在最底部
+                                const chatBox = document.getElementById('chatBox');
+                                chatBox.scrollTop = chatBox.scrollHeight;
+                            }
+                            // B. 如果是参考文档
+                            else if (data.type === 'sources' && data.content.length > 0) {
+                                let html = `<div class="doc-tag-container" style="margin-top:15px; opacity: 0.8;">`;
+                                data.content.forEach(doc => {
+                                    html += `<div class="doc-tag">📚 ${doc.source}</div>`;
+                                });
+                                html += `</div>`;
+                                aiContentDiv.innerHTML += html;
+                            }
+                        } catch (e) {
+                            console.error("解析流数据失败:", e);
+                        }
+                    }
+                }
+
+            } catch (e) {
+                aiContentDiv.innerHTML += `<br><span style="color:red">⚠️ 连接中断: ${e.message}</span>`;
+            } finally {
+                input.disabled = false;
+                btn.disabled = false;
+                input.focus();
+            }
+        }
+        // 优化：只有当用户本来就在底部时才自动滚动，否则允许用户停留在上方查看
+        // 🔧 修改后的 appendMsg：它现在会返回内容区的 DOM 元素
+        function appendMsg(text, role) {
+            const chatBox = document.getElementById('chatBox');
+            const entry = document.createElement('div');
+            entry.className = `entry ${role}-entry`;
+
+            const avatar = role === 'ai' ? 'T' : 'U';
+
+            // 初始结构
+            entry.innerHTML = `
+                <div class="avatar-box">${avatar}</div>
+                <div class="content-body">${text}</div>
+            `;
+
+            chatBox.appendChild(entry);
+
+            // 自动滚动到底部
+            chatBox.scrollTo({
+                top: chatBox.scrollHeight,
+                behavior: 'smooth'
+            });
+
+            // 🌟 关键点：返回这个 div，方便我们在 askQuestion 里往里追加文字
+            return entry.querySelector('.content-body');
+        }
+
+        function handleKeyPress(e) { if (e.key === 'Enter') askQuestion(); }
+
+        window.onload = () => {
+            syncStatus();
+            setInterval(syncStatus, 30000);
+        };
+    </script>
+</body>
+</html>
